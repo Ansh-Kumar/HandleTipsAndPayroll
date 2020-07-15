@@ -34,7 +34,7 @@ A CSV File
 ### Function 1 
 A CSV File
 
-5 columns: Name, Date, Start Time, End Time, Total Time per Employee
+2 columns: Name, Total Time per Employee
 ### Function 2 
 A CSV File
 
