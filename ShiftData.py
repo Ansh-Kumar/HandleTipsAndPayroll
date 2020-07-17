@@ -9,26 +9,18 @@ import time
 # "/Users/anshkumar/Downloads/shifts-export_2020-07-01_2020-07-15.csv"
 
 def getResources():
-    # Get the paths to the specific file.
-    # Add them to a list.
-    # Return the list
     paths = []
     print("Please enter the path for the shift export file: ")
     pathShift = input()
-    print("Please enter the path for the transaction export file: ")
-    pathTransaction = input()
     paths.append(pathShift)
-    paths.append(pathTransaction)
     return paths
 
     
 def sendResources():
     resources = getResources()
     shiftP = resources[0]
-    transP = resources[1]
     shiftStatus = checkPath(shiftP)
-    transStatus = checkPath(transP)
-    if shiftStatus == True and transStatus == True:
+    if shiftStatus == True:
         return resources
 
 def checkPath(path):
