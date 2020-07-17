@@ -61,7 +61,6 @@ def transactionFinal():
         else:
             lst = [x, individualTip]
         finalList.append(lst)
-    print(finalList)
     with open(fileName, mode='w', newline='') as csv_file:
         columnNames = ["Name", "Tip Recieved"]
         writer = csv.writer(csv_file)
