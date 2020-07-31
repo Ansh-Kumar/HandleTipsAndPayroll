@@ -108,7 +108,7 @@ def openShift():
         dataF.pop()
     return dataF
 
-def findTotalTimePerPerson():
+def data():
     data = openShift()
     anshHours = 0
     lynnHours = 0
@@ -147,21 +147,79 @@ def findTotalTimePerPerson():
             minute = int(minuteS)
             juanHours += hours + (minute/60)
     lstHours = []
-    lstHours.append(["Ansh", round(anshHours, 2)])
-    lstHours.append(["Lynn", round(lynnHours, 2)])
-    lstHours.append(["Tam", round(tamHours, 2)])
-    lstHours.append(["Nico", round(nicoHours, 2)])
-    lstHours.append(["Juan", round(juanHours, 2)])
-    return lstHours
+    anshHours = simplifyHours(anshHours)
+    lynnHours = simplifyHours(lynnHours)
+    tamHours = simplifyHours(tamHours)
+    nicoHours = simplifyHours(nicoHours)
+    lstHours.append(anshHours)
+    lstHours.append(lynnHours)
+    lstHours.append(tamHours)
+    lstHours.append(nicoHours)
+    lstHours.append(juanHours)
+    fullData = findTotalPay(lstHours)
+    return fullData
+
+def simplifyHours(totalHour):
+    hourString = str(totalHour)
+    decimalPart = hourString[-2:]
+    intHour = int(totalHour)
+    intDeci = int(decimalPart)
+    if intDeci >= 0 and intDeci < 13:
+        intDeci = 0
+    elif intDeci >= 13 and intDeci <= 38:
+        intDeci = 0.25
+    elif intDeci > 38 and intDeci <= 63:
+        intDeci = 0.5
+    elif intDeci > 63 and intDeci < 88:
+        intDeci = 0.75
+    else:
+        intDeci = 1
+    totalHourRtrn = intHour + intDeci
+    return totalHourRtrn
+
+def findTotalPay(Hours):
+    anshHours = Hours[0]
+    lynnHours = Hours[1]
+    tamHours = Hours[2]
+    nicoHours = Hours[3]
+    juanHours = Hours[4]
+    anshPay = anshHours * 7
+    lynnPay = lynnHours * 16
+    tamPay = tamHours * 13
+    nicoPay = nicoHours * 13
+
+    data = []
+    
+    anshRow = ["Ansh"]
+    anshRow.append(anshHours)
+    anshRow.append(anshPay)
+    data.append(anshRow)
+
+    lynnRow = ["Lynn"]
+    lynnRow.append(lynnHours)
+    lynnRow.append(lynnPay)
+    data.append(lynnRow)
+
+    tamRow = ["Tam"]
+    tamRow.append(tamHours)
+    tamRow.append(tamPay)
+    data.append(tamRow)
+
+    nicoRow = ["Nico"]
+    nicoRow.append(nicoHours)
+    nicoRow.append(nicoPay)
+    data.append(nicoRow)
+
+    return data
 
 def shiftFinal():
-    data = findTotalTimePerPerson()
+    dataFull = data()
     date = datetime.date.today().strftime("%m%d%y")
     newFileName = "ShiftReports" + date + ".csv"
     with open(newFileName, mode = "w", newline='') as csv_file:
-        columnNames = ["Name", "Total Hours"]
+        columnNames = ["Name", "Total Hours", "Total Pay"]
         writer = csv.writer(csv_file)
 
         writer.writerow(columnNames)
-        writer.writerows(data)
-    
+        writer.writerows(dataFull)
+
