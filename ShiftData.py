@@ -6,7 +6,7 @@ import csv
 import datetime
 import time
 
-# "/Users/anshkumar/Downloads/shifts-export_2020-07-01_2020-07-15.csv"
+# "/Users/anshkumar/Downloads/shifts-export_2020-07-16_2020-07-31.csv"
 
 def getResources():
     paths = []
@@ -29,49 +29,6 @@ def checkPath(path):
     else:
         return False
 
-def handleDateTime(value):
-    wholeThing = []
-    hourL = []
-    minL = []
-    secL = []
-    # TOD is time of day (AM/PM)
-    todL = []
-    # determine hour
-    for x in value:
-        if x != ":":
-            wholeThing.append(x)
-    wholeThing.remove(" ")
-    for x in range(5):
-        wholeThing.pop()
-    if len(wholeThing) == 6:
-        wholeThing.insert(0, "0")
-    hourS = wholeThing[0] + wholeThing[1]
-    minuteS = wholeThing[2] + wholeThing[3]
-    secondS = wholeThing[4] + wholeThing[5]
-    tod = wholeThing[6]
-    hour = int(hourS)
-    minute = int(minuteS)
-    second = int(secondS)
-    if tod == "P":
-        hour += 12
-    hourS = str(hour)
-    whole = hourS + minuteS + secondS
-    return whole
-
-def convertToSec(value):
-    timeA = handleDateTime(value)
-    timeL = list(timeA)
-    if len(timeL) == 5:
-        timeL.insert(0, "0")
-    hourS = timeL[0] + timeL[1]
-    minuteS = timeL[2] + timeL[3]
-    secondS = timeL[4] + timeL[5]
-    hour = int(hourS)
-    minute = int(minuteS)
-    second = int(secondS)
-    time = (hour*3600) + (minute*60) + second
-    return time
-
 def convertTimeElapsed(seconds):
     hour = int(seconds/3600)
     minute = int((seconds-(3600*hour))/60)
@@ -87,130 +44,93 @@ def openShift():
         data = []
         dataF = []
         for row in csv_reader:
+            data = []
             if lineCount == 0:
                 lineCount += 1
-                continue
             else:
-                if row[1] != "":
-                    data.append(row[1])
-                    data.append(row[4])
-                    data.append(row[5])
-                    data.append(row[7])
-                    startN = row[5]
-                    endN = row[7]
-                    start = convertToSec(startN)
-                    end = convertToSec(endN)
-                    timeElapsed = end-start
-                    timeElapsed = convertTimeElapsed(timeElapsed)
-                    data.append(timeElapsed)
-            dataF.append(data)
-            data = []
-        dataF.pop()
-    return dataF
+                data.append(row[1])
+                data.append(handleHrs(row[13]))
+                dataF.append(data)
+        return dataF
 
-def data():
-    data = openShift()
-    anshHours = 0
-    lynnHours = 0
-    nicoHours = 0
-    tamHours = 0
-    juanHours = 0
-    for row in data:
-        if row[0] == "Ansh":
-            hoursS = row[4]
-            hours = int(hoursS[0])
-            minuteS = hoursS[2] + hoursS[3]
-            minute = int(minuteS)
-            anshHours += hours + (minute/60)
-        elif row[0] == "Lynn":
-            hoursS = row[4]
-            hours = int(hoursS[0])
-            minuteS = hoursS[2] + hoursS[3]
-            minute = int(minuteS)
-            lynnHours += hours + (minute/60)
-        elif row[0] == "Tam":
-            hoursS = row[4]
-            hours = int(hoursS[0])
-            minuteS = hoursS[2] + hoursS[3]
-            minute = int(minuteS)
-            tamHours += hours + (minute/60)
-        elif row[0] == "Nico":
-            hoursS = row[4]
-            hours = int(hoursS[0])
-            minuteS = hoursS[2] + hoursS[3]
-            minute = int(minuteS)
-            nicoHours += hours + (minute/60)
-        else:
-            hoursS = row[4]
-            hours = int(hoursS[0])
-            minuteS = hoursS[2] + hoursS[3]
-            minute = int(minuteS)
-            juanHours += hours + (minute/60)
-    lstHours = []
-    anshHours = simplifyHours(anshHours)
-    lynnHours = simplifyHours(lynnHours)
-    tamHours = simplifyHours(tamHours)
-    nicoHours = simplifyHours(nicoHours)
-    lstHours.append(anshHours)
-    lstHours.append(lynnHours)
-    lstHours.append(tamHours)
-    lstHours.append(nicoHours)
-    lstHours.append(juanHours)
-    fullData = findTotalPay(lstHours)
-    return fullData
+def handleHrs(stringHrs):
+    hours = float(stringHrs)
+    hours = simplifyHours(hours)
+    return hours
+
+
 
 def simplifyHours(totalHour):
     hourString = str(totalHour)
-    decimalPart = hourString[-2:]
     intHour = int(totalHour)
-    intDeci = int(decimalPart)
-    if intDeci >= 0 and intDeci < 13:
+    intDeci = totalHour - intHour
+    if intDeci >= 0 and intDeci < .13:
         intDeci = 0
-    elif intDeci >= 13 and intDeci <= 38:
+    elif intDeci >= .13 and intDeci <= .38:
         intDeci = 0.25
-    elif intDeci > 38 and intDeci <= 63:
+    elif intDeci > .38 and intDeci <= .63:
         intDeci = 0.5
-    elif intDeci > 63 and intDeci < 88:
+    elif intDeci > .63 and intDeci < .88:
         intDeci = 0.75
     else:
         intDeci = 1
     totalHourRtrn = intHour + intDeci
     return totalHourRtrn
 
-def findTotalPay(Hours):
-    anshHours = Hours[0]
-    lynnHours = Hours[1]
-    tamHours = Hours[2]
-    nicoHours = Hours[3]
-    juanHours = Hours[4]
-    anshPay = anshHours * 7
-    lynnPay = lynnHours * 16
-    tamPay = tamHours * 13
-    nicoPay = nicoHours * 13
+def calcPay(employeeName, totalHrs):
+    if employeeName == "Tam" or employeeName == "Nico":
+        pay = totalHrs * 13
+    elif employeeName == "Lynn":
+        pay = totalHrs * 16
+    elif employeeName == "Ansh":
+        pay = totalHrs * 7
+    else:
+        pay = 0
+    return pay
 
-    data = []
-    
+def data():
+    dataF = openShift()
+    anshHours = 0
+    lynHours = 0
+    nicoHours = 0
+    tamHours = 0
+    for x in dataF:
+        if x[0] == "Ansh":
+            anshHours += x[1]
+        elif x[0] == "Lynn":
+            lynHours += x[1]
+        elif x[0] == "Tam":
+            tamHours += x[1]
+        elif x[0] == "Nico":
+            nicoHours += x[1]
+        else:
+            continue
+    anshPay = calcPay("Ansh", anshHours)
+    lynPay = calcPay("Lynn", lynHours)
+    tamPay = calcPay("Tam", tamHours)
+    nicoPay = calcPay("Nico", nicoHours)
+
     anshRow = ["Ansh"]
     anshRow.append(anshHours)
     anshRow.append(anshPay)
-    data.append(anshRow)
-
-    lynnRow = ["Lynn"]
-    lynnRow.append(lynnHours)
-    lynnRow.append(lynnPay)
-    data.append(lynnRow)
-
+    lynRow = ["Lynn"]
+    lynRow.append(lynHours)
+    lynRow.append(lynPay)
     tamRow = ["Tam"]
     tamRow.append(tamHours)
     tamRow.append(tamPay)
-    data.append(tamRow)
-
     nicoRow = ["Nico"]
     nicoRow.append(nicoHours)
     nicoRow.append(nicoPay)
-    data.append(nicoRow)
 
-    return data
+    dataF = []
+
+    dataF.append(anshRow)
+    dataF.append(lynRow)
+    dataF.append(tamRow)
+    dataF.append(nicoRow)
+
+    return dataF
 
 def shiftFinal():
     dataFull = data()

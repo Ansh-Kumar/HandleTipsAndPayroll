@@ -57,7 +57,7 @@ def transactionFinal():
         if x == "Ansh":
             lst = [x, ansh]
         elif x == "Total":
-            lst = [x, totalTip]
+            lst = [x, round(totalTip, 2)]
         else:
             lst = [x, individualTip]
         finalList.append(lst)
